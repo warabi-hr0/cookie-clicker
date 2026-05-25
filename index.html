@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>グリモワール用クッキー貯蔵量計算機</title>
+
   <style>
     :root {
       --bg: #17130f;
@@ -13,7 +14,6 @@
       --muted: #c9b79b;
       --accent: #f2b84b;
       --accent2: #8ee08e;
-      --danger: #ff8a8a;
       --border: #4a3726;
     }
 
@@ -34,7 +34,6 @@
     h1 {
       font-size: clamp(1.7rem, 4vw, 2.7rem);
       margin: 0 0 8px;
-      letter-spacing: 0.02em;
     }
 
     .lead { color: var(--muted); line-height: 1.7; margin: 0; }
@@ -61,13 +60,32 @@
 
     .card.full { grid-column: 1 / -1; }
 
-    h2 { margin: 0 0 14px; font-size: 1.15rem; color: #ffe0a3; }
-    label { display: block; color: var(--muted); font-size: .92rem; margin-bottom: 7px; }
-    .field { margin-bottom: 14px; }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.15rem;
+      color: #ffe0a3;
+    }
 
-    input {
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .92rem;
+      margin-bottom: 7px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 180px) 80px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input,
+    select {
       width: 100%;
-      padding: 12px 13px;
+      padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid #604832;
       background: #130f0b;
@@ -76,20 +94,21 @@
       outline: none;
     }
 
-    input:focus {
+    input:focus,
+    select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(242,184,75,.16);
     }
 
-    .hint { color: var(--muted); font-size: .83rem; margin-top: 5px; line-height: 1.5; }
-
     .results {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
-    @media (max-width: 760px) { .results { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) {
+      .results { grid-template-columns: 1fr; }
+    }
 
     .result-box {
       background: rgba(0,0,0,.23);
@@ -98,24 +117,25 @@
       padding: 15px;
     }
 
-    .result-title { color: var(--muted); font-size: .86rem; margin-bottom: 8px; }
+    .result-title {
+      color: var(--muted);
+      font-size: .86rem;
+      margin-bottom: 8px;
+    }
+
     .result-value {
       font-size: clamp(1.25rem, 3vw, 1.8rem);
       font-weight: 800;
       color: var(--accent2);
-      word-break: keep-all;
       overflow-wrap: anywhere;
       line-height: 1.35;
     }
 
-    .formula { color: var(--muted); line-height: 1.7; margin-top: 12px; font-size: .92rem; }
-    .danger { color: var(--danger); }
-
     .small-table {
       width: 100%;
       border-collapse: collapse;
-      overflow: hidden;
       border-radius: 14px;
+      overflow: hidden;
       margin-top: 10px;
     }
 
@@ -127,19 +147,27 @@
       vertical-align: top;
     }
 
-    .small-table th { color: #ffe0a3; background: rgba(0,0,0,.22); font-weight: 700; }
-    .small-table td { color: var(--text); }
-    .footer-note { color: var(--muted); font-size: .86rem; line-height: 1.7; margin-top: 16px; }
-    .sub-number { display: block; color: var(--muted); font-size: .78rem; margin-top: 4px; }
+    .small-table th {
+      color: #ffe0a3;
+      background: rgba(0,0,0,.22);
+      font-weight: 700;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.7;
+      margin-top: 16px;
+    }
   </style>
 </head>
+
 <body>
   <main class="app">
     <header>
       <h1>🍪 グリモワール用クッキー貯蔵量計算機</h1>
       <p class="lead">
-        「魔法でベーキング」を満額受け取るために必要なクッキー貯蔵量を計算します。<br>
-        通常CpSか7倍時CpSのどちらかを入力すると、もう片方も自動で反映されます。
+        「魔法でベーキング」を満額受け取るために必要なクッキー貯蔵量を計算します。
       </p>
     </header>
 
@@ -149,55 +177,72 @@
 
         <div class="field">
           <label for="normalCps">通常CpS</label>
-          <input id="normalCps" type="text" inputmode="decimal" placeholder="例：34.57兆 / 107億5000万" />
-          <div class="hint">日本語単位対応：万、億、兆、京。カンマ入力もOKです。</div>
+          <div class="input-row">
+            <input id="normalCps" type="number" inputmode="decimal" step="any" value="345" />
+            <select id="normalUnit">
+              <option value="1">なし</option>
+              <option value="10000">万</option>
+              <option value="100000000">億</option>
+              <option value="1000000000000" selected>兆</option>
+              <option value="10000000000000000">京</option>
+            </select>
+          </div>
         </div>
 
         <div class="field">
           <label for="frenzyCps">7倍時CpS</label>
-          <input id="frenzyCps" type="text" inputmode="decimal" placeholder="例：242.0兆 / 2421億" />
-          <div class="hint">通常CpS × 7。ここに入力しても通常CpSへ逆算します。</div>
+          <div class="input-row">
+            <input id="frenzyCps" type="number" inputmode="decimal" step="any" value="2415" />
+            <select id="frenzyUnit">
+              <option value="1">なし</option>
+              <option value="10000">万</option>
+              <option value="100000000">億</option>
+              <option value="1000000000000" selected>兆</option>
+              <option value="10000000000000000">京</option>
+            </select>
+          </div>
         </div>
 
         <div class="field">
           <label for="xMultiplier">X倍倍率</label>
-          <input id="xMultiplier" type="text" inputmode="decimal" value="10" />
-          <div class="hint">所持施設数などで変動する倍率。初期値は10です。</div>
+          <div class="input-row">
+            <input id="xMultiplier" type="number" inputmode="decimal" step="any" value="15" />
+            <select disabled>
+              <option>倍</option>
+            </select>
+          </div>
         </div>
       </div>
 
       <div class="card full">
         <h2>必要な貯蔵クッキー量</h2>
+
         <div class="results">
           <div class="result-box">
             <div class="result-title">通常CpS時</div>
             <div id="needNormal" class="result-value">-</div>
           </div>
+
           <div class="result-box">
             <div class="result-title">7倍時</div>
             <div id="needFrenzy" class="result-value">-</div>
           </div>
+
           <div class="result-box">
             <div class="result-title">X倍時</div>
             <div id="needX" class="result-value">-</div>
           </div>
+
           <div class="result-box">
             <div class="result-title">7×X倍時</div>
             <div id="needFrenzyX" class="result-value">-</div>
-          </div>
-          <div class="result-box">
-            <div class="result-title">現在のX倍CpS</div>
-            <div id="xCps" class="result-value">-</div>
-          </div>
-          <div class="result-box">
-            <div class="result-title">現在の7×X倍CpS</div>
-            <div id="frenzyXCps" class="result-value">-</div>
           </div>
         </div>
       </div>
 
       <div class="card full">
         <h2>詳細表</h2>
+
         <table class="small-table">
           <thead>
             <tr>
@@ -209,9 +254,10 @@
           </thead>
           <tbody id="detailRows"></tbody>
         </table>
+
         <p class="footer-note">
-          満額獲得量は「CpS30分相当」。必要貯蔵量は「満額獲得量 ÷ 15%」です。<br>
-          ざっくり言うと、撃つ瞬間のCpSの <strong>12,000秒ぶん</strong> を貯蔵しておくと上限に引っかかりません。
+          満額獲得量は「CpS30分相当」。<br>
+          必要貯蔵量は「満額獲得量 ÷ 15%」です。
         </p>
       </div>
     </section>
@@ -220,74 +266,91 @@
   <script>
     const normalInput = document.getElementById('normalCps');
     const frenzyInput = document.getElementById('frenzyCps');
+
+    const normalUnit = document.getElementById('normalUnit');
+    const frenzyUnit = document.getElementById('frenzyUnit');
+
     const xInput = document.getElementById('xMultiplier');
 
     const needNormal = document.getElementById('needNormal');
     const needFrenzy = document.getElementById('needFrenzy');
     const needX = document.getElementById('needX');
     const needFrenzyX = document.getElementById('needFrenzyX');
-    const xCpsEl = document.getElementById('xCps');
-    const frenzyXCpsEl = document.getElementById('frenzyXCps');
+
     const detailRows = document.getElementById('detailRows');
 
     let syncing = false;
 
-    function normalizeDigits(value) {
-      return String(value || '')
-        .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
-        .replace(/．/g, '.')
-        .replace(/，/g, ',')
-        .replace(/＋/g, '+')
-        .replace(/－/g, '-');
+    function getNumber(input, unitSelect) {
+      const value = Number(input.value);
+      const unit = Number(unitSelect.value);
+
+      if (!Number.isFinite(value)) {
+        return NaN;
+      }
+
+      return value * unit;
     }
 
-    function parseJapaneseNumber(value) {
-      let s = normalizeDigits(value).replace(/,/g, '').replace(/\s/g, '');
-      if (!s) return NaN;
+    function formatInputNumber(num) {
+      if (!Number.isFinite(num)) {
+        return '';
+      }
+
+      if (Math.abs(num) >= 10) {
+        return String(Math.round(num));
+      }
+
+      if (Math.abs(num) >= 1) {
+        return String(Math.round(num * 10) / 10);
+      }
+
+      return String(Math.round(num * 100) / 100);
+    }
+
+    function setNumberWithBestUnit(input, unitSelect, rawValue) {
+      if (!Number.isFinite(rawValue)) {
+        return;
+      }
 
       const units = [
-        { key: '京', value: 1e16 },
-        { key: '兆', value: 1e12 },
-        { key: '億', value: 1e8 },
-        { key: '万', value: 1e4 },
+        { value: 10000000000000000, label: '京' },
+        { value: 1000000000000, label: '兆' },
+        { value: 100000000, label: '億' },
+        { value: 10000, label: '万' },
+        { value: 1, label: 'なし' },
       ];
 
-      if (!/[京兆億万]/.test(s)) return Number(s);
-
-      let total = 0;
-      let rest = s;
+      let selected = units[units.length - 1];
 
       for (const unit of units) {
-        const index = rest.indexOf(unit.key);
-        if (index !== -1) {
-          const before = rest.slice(0, index);
-          const num = before === '' ? 1 : Number(before);
-          if (!Number.isFinite(num)) return NaN;
-          total += num * unit.value;
-          rest = rest.slice(index + unit.key.length);
+        if (Math.abs(rawValue) >= unit.value) {
+          selected = unit;
+          break;
         }
       }
 
-      if (rest) {
-        const tail = Number(rest);
-        if (!Number.isFinite(tail)) return NaN;
-        total += tail;
-      }
-
-      return total;
+      unitSelect.value = String(selected.value);
+      input.value = formatInputNumber(rawValue / selected.value);
     }
 
     function formatJapaneseNumber(num) {
-      if (!Number.isFinite(num)) return '-';
-      if (num === 0) return '0';
+      if (!Number.isFinite(num)) {
+        return '-';
+      }
+
+      if (num === 0) {
+        return '0';
+      }
 
       const abs = Math.abs(num);
       const sign = num < 0 ? '-' : '';
+
       const units = [
-        { label: '京', value: 1e16 },
-        { label: '兆', value: 1e12 },
-        { label: '億', value: 1e8 },
-        { label: '万', value: 1e4 },
+        { label: '京', value: 10000000000000000 },
+        { label: '兆', value: 1000000000000 },
+        { label: '億', value: 100000000 },
+        { label: '万', value: 10000 },
       ];
 
       if (abs < 10000) {
@@ -298,30 +361,33 @@
         if (abs >= unit.value) {
           const main = abs / unit.value;
           const digits = main >= 100 ? 0 : main >= 10 ? 1 : 2;
-          const rounded = Number(main.toFixed(digits));
-          return sign + rounded.toLocaleString('ja-JP', { maximumFractionDigits: digits }) + unit.label;
+
+          return sign +
+            Number(main.toFixed(digits)).toLocaleString(
+              'ja-JP',
+              { maximumFractionDigits: digits }
+            ) +
+            unit.label;
         }
       }
-    }
 
-    function formatExactSmall(num) {
-      if (!Number.isFinite(num)) return '-';
-      return Math.round(num).toLocaleString('ja-JP');
+      return String(num);
     }
 
     function formatCookie(num) {
-      if (!Number.isFinite(num)) return '-';
-      return `${formatJapaneseNumber(num)} 枚<span class="sub-number">${formatExactSmall(num)} 枚</span>`;
+      if (!Number.isFinite(num)) {
+        return '-';
+      }
+
+      return `${formatJapaneseNumber(num)} 枚`;
     }
 
     function formatCps(num) {
-      if (!Number.isFinite(num)) return '-';
-      return `${formatJapaneseNumber(num)} CpS<span class="sub-number">${num.toLocaleString('ja-JP', { maximumFractionDigits: 2 })} CpS</span>`;
-    }
+      if (!Number.isFinite(num)) {
+        return '-';
+      }
 
-    function formatForInput(num) {
-      if (!Number.isFinite(num)) return '';
-      return formatJapaneseNumber(num);
+      return `${formatJapaneseNumber(num)} CpS`;
     }
 
     function storageNeeded(cps) {
@@ -334,36 +400,51 @@
 
     function updateFromNormal() {
       if (syncing) return;
-      const normal = parseJapaneseNumber(normalInput.value);
+
+      const normal = getNumber(normalInput, normalUnit);
+
       if (Number.isFinite(normal)) {
         syncing = true;
-        frenzyInput.value = formatForInput(normal * 7);
+        setNumberWithBestUnit(frenzyInput, frenzyUnit, normal * 7);
         syncing = false;
       }
+
       calculate();
     }
 
     function updateFromFrenzy() {
       if (syncing) return;
-      const frenzy = parseJapaneseNumber(frenzyInput.value);
+
+      const frenzy = getNumber(frenzyInput, frenzyUnit);
+
       if (Number.isFinite(frenzy)) {
         syncing = true;
-        normalInput.value = formatForInput(frenzy / 7);
+        setNumberWithBestUnit(normalInput, normalUnit, frenzy / 7);
         syncing = false;
       }
+
       calculate();
     }
 
-    function setHTML(el, html) {
-      el.innerHTML = html;
-    }
-
     function calculate() {
-      const normal = parseJapaneseNumber(normalInput.value);
-      const x = parseJapaneseNumber(xInput.value);
+      const normal = getNumber(normalInput, normalUnit);
+      const x = Number(xInput.value);
 
-      if (!Number.isFinite(normal) || normal <= 0 || !Number.isFinite(x) || x <= 0) {
-        [needNormal, needFrenzy, needX, needFrenzyX, xCpsEl, frenzyXCpsEl].forEach(el => el.textContent = '-');
+      if (
+        !Number.isFinite(normal) ||
+        normal <= 0 ||
+        !Number.isFinite(x) ||
+        x <= 0
+      ) {
+        [
+          needNormal,
+          needFrenzy,
+          needX,
+          needFrenzyX
+        ].forEach(el => {
+          el.textContent = '-';
+        });
+
         detailRows.innerHTML = '';
         return;
       }
@@ -375,12 +456,10 @@
         { name: `7×X倍（${formatJapaneseNumber(7 * x)}倍）`, cps: normal * 7 * x },
       ];
 
-      setHTML(needNormal, formatCookie(storageNeeded(states[0].cps)));
-      setHTML(needFrenzy, formatCookie(storageNeeded(states[1].cps)));
-      setHTML(needX, formatCookie(storageNeeded(states[2].cps)));
-      setHTML(needFrenzyX, formatCookie(storageNeeded(states[3].cps)));
-      setHTML(xCpsEl, formatCps(states[2].cps));
-      setHTML(frenzyXCpsEl, formatCps(states[3].cps));
+      needNormal.textContent = formatCookie(storageNeeded(states[0].cps));
+      needFrenzy.textContent = formatCookie(storageNeeded(states[1].cps));
+      needX.textContent = formatCookie(storageNeeded(states[2].cps));
+      needFrenzyX.textContent = formatCookie(storageNeeded(states[3].cps));
 
       detailRows.innerHTML = states.map(state => `
         <tr>
@@ -393,10 +472,13 @@
     }
 
     normalInput.addEventListener('input', updateFromNormal);
+    normalUnit.addEventListener('change', updateFromNormal);
+
     frenzyInput.addEventListener('input', updateFromFrenzy);
+    frenzyUnit.addEventListener('change', updateFromFrenzy);
+
     xInput.addEventListener('input', calculate);
 
-    normalInput.value = '34.57兆';
     updateFromNormal();
   </script>
 </body>
