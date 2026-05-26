@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>グリモワール用クッキー貯蔵量計算機</title>
+  <title>クッキー貯蔵量 最適化計算機</title>
 
   <style>
     :root {
@@ -135,28 +135,6 @@
       margin-top: 18px;
     }
 
-    .small-table {
-      width: 100%;
-      border-collapse: collapse;
-      border-radius: 14px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .small-table th,
-    .small-table td {
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      padding: 11px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    .small-table th {
-      color: #ffe0a3;
-      background: rgba(0,0,0,.22);
-      font-weight: 700;
-    }
-
     .footer-note {
       color: var(--muted);
       font-size: .86rem;
@@ -244,26 +222,10 @@
             <div id="luckyX" class="result-value">-</div>
           </div>
         </div>
-      </div>
-
-      <div class="card full">
-        <h2>詳細表</h2>
-
-        <table class="small-table">
-          <thead>
-            <tr>
-              <th>状態</th>
-              <th>CpS</th>
-              <th>魔法でベーキング</th>
-              <th>ツイてる！</th>
-            </tr>
-          </thead>
-          <tbody id="detailRows"></tbody>
-        </table>
 
         <p class="footer-note">
-          「魔法でベーキング」はCpS30分相当を最大化するため、CpSの12,000秒ぶんの所持が目安です。<br>
-          「ツイてる！」はその半分なので、CpSの6,000秒ぶんの所持が目安です。
+          「魔法でベーキング」はCpSの12,000秒ぶん。<br>
+          「ツイてる！」はその半分なので、CpSの6,000秒ぶんが目安です。
         </p>
       </div>
     </section>
@@ -299,8 +261,6 @@
     const luckyNormal = document.getElementById('luckyNormal');
     const luckyFrenzy = document.getElementById('luckyFrenzy');
     const luckyX = document.getElementById('luckyX');
-
-    const detailRows = document.getElementById('detailRows');
 
     let syncing = false;
 
@@ -391,11 +351,6 @@
       return `${formatJapaneseNumber(num)} 枚`;
     }
 
-    function formatCps(num) {
-      if (!Number.isFinite(num)) return '-';
-      return `${formatJapaneseNumber(num)} CpS`;
-    }
-
     function bakingNeeded(cps) {
       return cps * 12000;
     }
@@ -453,32 +408,20 @@
           el.textContent = '-';
         });
 
-        detailRows.innerHTML = '';
         return;
       }
 
-      const states = [
-        { name: '通常', cps: normal },
-        { name: '7倍', cps: normal * 7 },
-        { name: `X倍（${formatJapaneseNumber(x)}倍）`, cps: normal * x },
-      ];
+      const cpsNormal = normal;
+      const cpsFrenzy = normal * 7;
+      const cpsX = normal * x;
 
-      bakeNormal.textContent = formatCookie(bakingNeeded(states[0].cps));
-      bakeFrenzy.textContent = formatCookie(bakingNeeded(states[1].cps));
-      bakeX.textContent = formatCookie(bakingNeeded(states[2].cps));
+      bakeNormal.textContent = formatCookie(bakingNeeded(cpsNormal));
+      bakeFrenzy.textContent = formatCookie(bakingNeeded(cpsFrenzy));
+      bakeX.textContent = formatCookie(bakingNeeded(cpsX));
 
-      luckyNormal.textContent = formatCookie(luckyNeeded(states[0].cps));
-      luckyFrenzy.textContent = formatCookie(luckyNeeded(states[1].cps));
-      luckyX.textContent = formatCookie(luckyNeeded(states[2].cps));
-
-      detailRows.innerHTML = states.map(state => `
-        <tr>
-          <td>${state.name}</td>
-          <td>${formatCps(state.cps)}</td>
-          <td><strong>${formatCookie(bakingNeeded(state.cps))}</strong></td>
-          <td><strong>${formatCookie(luckyNeeded(state.cps))}</strong></td>
-        </tr>
-      `).join('');
+      luckyNormal.textContent = formatCookie(luckyNeeded(cpsNormal));
+      luckyFrenzy.textContent = formatCookie(luckyNeeded(cpsFrenzy));
+      luckyX.textContent = formatCookie(luckyNeeded(cpsX));
     }
 
     normalInput.addEventListener('input', updateFromNormal);
